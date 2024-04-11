@@ -1,6 +1,7 @@
 *{
   box-sizing: border-box;
   margin: 0;padding: 0;
+  background-color: black;
 }
 
 body{
@@ -11,6 +12,7 @@ body{
   text-align: center;
   margin: 0.5em 0;
   font-size: 4em;
+  color: white;
  }
 
  .menu{
@@ -19,6 +21,7 @@ body{
    align-items: center;
  }
  
+
 
  .menu li{
    display: inline-block;
@@ -41,6 +44,8 @@ body{
 
  .menu .active:hover {
    background: #7ca764;
+   box-shadow: 0 4px 8px rgb(255, 252, 252);
+   transform:  translate(-10%, -10%) scale(1.2);
  }
 
  .news-grid {
@@ -58,17 +63,17 @@ body{
  .article {
   display: flex;
   flex-direction: column;
-  background-color: #fff;
+  background-color: rgba(255, 255, 255, 0.87);
   border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0 10px rgba(214, 214, 214, 0.966);
   overflow: hidden;
   text-decoration: none;
   transition: 0.3s ;
-  width: 25em;
+  width: 20em;
 }
 
 .article:hover {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(156, 156, 156, 0.514);
 }
 
 .article-image  {
@@ -107,20 +112,20 @@ body{
   justify-content: flex-start;
   align-items: center;
   gap: 0.5em;
-  color: rgb(36, 35, 35);
+  color: white;
   
 }
 
 .article-title h2 {
   margin: 0;
   font-size: 1.2rem;
-  color: black;
+  color: white;
 }
 
 .article-description {
   margin-top: 10px;
-  font-size: 1rem;
-  color: black;
+  font-size: 13px;
+  color: white;
 }
 
 .article-details {
@@ -129,7 +134,7 @@ body{
 
 .article-details h2 {
   font-size: 14px;
-  color: black;
+  color: white;
   margin: 0; 
 }
 

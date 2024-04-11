@@ -1,8 +1,8 @@
 function NewsItem({ item }) {
     return (
-      <a href={item.url} className="article">
+      <a href={item.url} className="article" target="_blank"  rel="noreferrer">
         <div className="article-image">
-          <img src={!item.urlToImage ? "https://media.cnn.com/api/v1/images/stellar/prod/laken2.jpg?c=16x9&q=w_800,c_fill" : item.urlToImage} alt={item.title} />
+          <img src={!item.urlToImage ? "https://media.cnn.com/api/v1/images/stellar/prod/laken2.jpg?c=16x9&q=w_800,c_fill" : item.urlToImage} alt={item.title}  />
         </div>
         <div className="article-content">
           <div className="article-source">
