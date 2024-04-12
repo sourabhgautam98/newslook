@@ -22,7 +22,7 @@ useEffect(()=> {
 
 return (
  <div className='App'>
-  <h1 className='title'>First Look</h1>
+  <h1 className='title'>News Look</h1>
   <Menu active={active} setActive={setActive} setCategory={setCategory}/>
   <NewsGrid items={items} />
  </div>
