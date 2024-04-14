@@ -1,25 +1,58 @@
+import React from 'react';
+import Card from 'react-bootstrap/Card';
+import ListGroup from 'react-bootstrap/ListGroup';
+import { Container, Row, Col } from 'react-bootstrap';
+
+
 function NewsItem({ item }) {
+    const {
+        abstract = '',
+        headline: { main = '' } = {},
+        byline: { original = '' } = {},
+        lead_paragraph = '',
+        section_name = '',
+        web_url = '#',
+        multimedia
+    } = item;
+    const imageUrl = multimedia && multimedia.length > 0
+        ? `https://www.nytimes.com/${multimedia[0].url}`
+        : null;
+
     return (
-      <a href={item.url} className="article" target="_blank"  rel="noreferrer">
-        <div className="article-image">
-          <img src={!item.urlToImage ? "https://media.cnn.com/api/v1/images/stellar/prod/laken2.jpg?c=16x9&q=w_800,c_fill" : item.urlToImage} alt={item.title}  />
-        </div>
-        <div className="article-content">
-          <div className="article-source">
-            <span>{item.source.name}</span>
-          </div>
-          <div className="article-title">
-            <h2>{item.title}</h2>
-          </div>
-          <p className="article-description">{item.description}</p>
-          <div className="article-details">
-            <h2>Time & Date: {item.publishedAt}</h2>
-            <h2>Author: {!item.author ? "Unknown" :item.author}</h2> 
-          </div>
-        </div>
-      </a>
+        <Container>
+            <Row className="justify-content-center">
+                <Card className="mb-4">
+                    <Row noGutters>
+                        <Col xs={12} sm={6} md={4}>
+                            {imageUrl ? (
+                                <div className="image-container">
+                                    <Card.Img variant="top" src={imageUrl} alt={main || "No image description"} />
+                                </div>
+                            ) : (
+                                <div style={{ height: '300px', backgroundColor: '#eee', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    No Image Available
+                                </div>
+                            )}
+                        </Col>
+                        <Col>
+                            <Card.Body>
+                                <Card.Title style={{ color:'white'}}>{main || 'No Title Available'}</Card.Title>
+                                <Card.Text className='headline'>{abstract || 'No Headline available'}</Card.Text>
+                                <Card.Text className='paragraph'>{lead_paragraph || 'No paragraph available'}</Card.Text>
+                            </Card.Body>
+                            <ListGroup className="list-group-flush">
+                                <ListGroup.Item style={{ backgroundColor:'black', color:'white'}}>{original || 'Author Unknown'}</ListGroup.Item>
+                                <ListGroup.Item style={{ backgroundColor:'black', color:'white'}}>{section_name || 'No Section Available'}</ListGroup.Item>
+                            </ListGroup>
+                            <Card.Body>
+                                <Card.Link className='link' href={web_url} target="_blank" rel="noopener noreferrer">Read more</Card.Link>
+                            </Card.Body>
+                        </Col>
+                    </Row>
+                </Card>
+            </Row>
+        </Container>
     );
-  }
-  
-  export default NewsItem;
-  
+}
+
+export default NewsItem;
