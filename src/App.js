@@ -1,31 +1,32 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import NewsItem from './components/NewsItem';
 import { Container, Row, Col, Form, Button } from 'react-bootstrap';
+import axios from 'axios';
 
 function App() {
     const [articles, setArticles] = useState([]);
     const [term, setTerm] = useState('Fortnite');
     const [searched, setSearched] = useState(false); 
 
-    useEffect(() => {
-        const fetchData = async () => {
-            const encodedTerm = encodeURIComponent(term);
-            const res = await fetch(`https://api.nytimes.com/svc/search/v2/articlesearch.json?q=${encodedTerm}&api-key=Q5rRzoCrgaDjMJANGKMeKhZQEWuBKsVQ`);
-            if (!res.ok) {
-                throw new Error('Failed to fetch');
-            }
-            const data = await res.json();
-            setArticles(data.response.docs);
-            setSearched(true); 
-        };
-        if (term) {
-            fetchData();
-        }
-    }, [term]);
-
-    const handleSearch = (event) => {
+    const handleSearch = async (event) => {
         event.preventDefault();
-        setTerm(event.target.elements.search.value.trim());
+        const searchTerm = event.target.elements.search.value.trim();
+        setTerm(searchTerm);
+
+        if (searchTerm) {
+            const encodedTerm = encodeURIComponent(searchTerm);
+            try {
+                const res = await axios.get(
+                    `https://api.nytimes.com/svc/search/v2/articlesearch.json?q=${encodedTerm}&api-key=Q5rRzoCrgaDjMJANGKMeKhZQEWuBKsVQ`
+                );
+                setArticles(res.data.response.docs);
+                setSearched(true);
+            } catch (error) {
+                console.error('Failed to fetch', error);
+                setArticles([]);
+                setSearched(true);
+            }
+        }
     };
 
     return (
@@ -39,14 +40,14 @@ function App() {
                             defaultValue={term}
                             placeholder="Search for news articles..."
                         />
-                        <Button  type="submit" className="mx-4">Search</Button>
+                        <Button type="submit" className="mx-4">Search</Button>
                     </Form>
                 </Col>
             </Row>
             <Row>
                 {searched && articles.length === 0 ? ( 
                     <Col>
-                        <p >No articles found. Try a different search term.</p>
+                        <p>No articles found. Try a different search term.</p>
                     </Col>
                 ) : (
                     articles.map(article => (
