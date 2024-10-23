@@ -30,7 +30,7 @@ function NewsItem({ item }) {
                                         src={imageUrl}
                                         alt={main || "No image description"}
                                         className="d-block mx-auto"
-                                        style={{ padding: '0px', maxWidth: '100%', height: 'auto', borderRadius: '20px' }}
+                                        style={{ padding: 'px', maxWidth: '100%', height: 'auto', borderRadius: '20px' }}
                                     />
                                 </div>
                             ) : (
