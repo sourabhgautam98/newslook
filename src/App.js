@@ -1,107 +1,142 @@
-import React, { useState, useEffect } from 'react';
-import NewsItem from './components/NewsItem';
-import { Container, Row, Col, Form, Button, Spinner } from 'react-bootstrap';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import NewsItem from "./components/NewsItem";
+import NewsNavbar from "./components/Navbar";
+import { Container, Row, Col, Spinner } from "react-bootstrap";
+import axios from "axios";
 
 function App() {
-    const [articles, setArticles] = useState([]);
-    const [term, setTerm] = useState('Fortnite');
-    const [page, setPage] = useState(0);
-    const [searched, setSearched] = useState(false); 
-    const [loading, setLoading] = useState(false);
-    const [hasMore, setHasMore] = useState(true);
+  const [articles, setArticles] = useState([]);
+  const [term, setTerm] = useState("");
+  const [page, setPage] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [category, setCategory] = useState("popular");
 
-    const fetchArticles = async (searchTerm, pageNum) => {
-        if (loading || !hasMore) return; // Prevent multiple fetches
-        setLoading(true);
-        
-        const encodedTerm = encodeURIComponent(searchTerm);
-        try {
-            const res = await axios.get(
-                `https://api.nytimes.com/svc/search/v2/articlesearch.json?q=${encodedTerm}&page=${pageNum}&api-key=Q5rRzoCrgaDjMJANGKMeKhZQEWuBKsVQ`
-            );
-            const newArticles = res.data.response.docs;
-            setArticles((prev) => [...prev, ...newArticles]);
-            setHasMore(newArticles.length > 0);
-            setSearched(true);
-        } catch (error) {
-            console.error('Failed to fetch', error);
-            setHasMore(false);
-        } finally {
-            setLoading(false);
-        }
+  const API_KEY = "Q5rRzoCrgaDjMJANGKMeKhZQEWuBKsVQ";
+
+  const fetchArticles = async (type, pageNum = 0, query = "") => {
+    if (loading) return;
+    setLoading(true);
+    try {
+      let url = "";
+
+      if (type === "popular") {
+        const encodedQuery = encodeURIComponent("India");
+        url = `https://api.nytimes.com/svc/search/v2/articlesearch.json?q=${encodedQuery}&page=${pageNum}&api-key=${API_KEY}`;
+      } else if (type === "latest") {
+        url = `https://api.nytimes.com/svc/search/v2/articlesearch.json?sort=newest&page=${pageNum}&api-key=${API_KEY}`;
+      } else if (type === "search") {
+        const encodedQuery = encodeURIComponent(query);
+        url = `https://api.nytimes.com/svc/search/v2/articlesearch.json?q=${encodedQuery}&page=${pageNum}&api-key=${API_KEY}`;
+      }
+
+      const res = await axios.get(url);
+      const newArticles = res.data.response.docs;
+
+      setArticles((prev) =>
+        pageNum === 0 ? newArticles : [...prev, ...newArticles]
+      );
+      setHasMore(newArticles.length > 0);
+    } catch (err) {
+      console.error("Fetch failed", err);
+      setHasMore(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = (searchTerm) => {
+    setCategory("search");
+    setTerm(searchTerm);
+    setArticles([]);
+    setPage(0);
+    fetchArticles("search", 0, searchTerm);
+  };
+
+  const handleCategorySelect = (selected) => {
+    setCategory(selected);
+    setTerm("");
+    setArticles([]);
+    setPage(0);
+    fetchArticles(selected, 0);
+  };
+
+  // Load Popular News initially
+  useEffect(() => {
+    setCategory("popular");
+    setTerm("");
+    setArticles([]);
+    setPage(0);
+    fetchArticles("popular", 0);
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (
+        window.innerHeight + window.scrollY >=
+          document.body.offsetHeight - 100 &&
+        !loading &&
+        hasMore
+      ) {
+        setPage((prev) => prev + 1);
+      }
     };
 
-    const handleSearch = async (event) => {
-        event.preventDefault();
-        const searchTerm = event.target.elements.search.value.trim();
-        setTerm(searchTerm);
-        setArticles([]);
-        setPage(0);
-        setHasMore(true);
-        
-        if (searchTerm) {
-            await fetchArticles(searchTerm, 0); // Fetch first page
-        }
-    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [loading, hasMore]);
 
-    useEffect(() => {
-        const handleScroll = () => {
-            if (
-                window.innerHeight + document.documentElement.scrollTop !== 
-                document.documentElement.offsetHeight || 
-                loading
-            ) return;
-            setPage((prev) => prev + 1); // Increment page number
-        };
+  useEffect(() => {
+    if (page === 0) return;
+    if (category === "search") {
+      fetchArticles("search", page, term);
+    } else {
+      fetchArticles(category, page);
+    }
+  }, [page]);
 
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, [loading]);
+  return (
+    <Container
+      fluid
+      style={{ padding: 0, backgroundColor: "#000", minHeight: "100vh" }}
+    >
+      <NewsNavbar
+        onSearch={handleSearch}
+        onSelectCategory={handleCategorySelect}
+      />
 
-    useEffect(() => {
-        if (page > 0) {
-            fetchArticles(term, page);
-        }
-    }, [page]);
+      <h3 className="text-white px-4 pt-4">
+        {category === "popular" && "Indian News"}
+        {category === "latest" && "Latest News"}
+        {category === "search" && `Search Results for "${term}"`}
+      </h3>
 
-    return (
-        <Container>
-            <Row className="justify-content-center my-4">
-                <Col md={5}>
-                    <Form onSubmit={handleSearch} className="d-flex">
-                        <Form.Control
-                            type="text"
-                            name="search"
-                            defaultValue={term}
-                            placeholder="Search for news articles..."
-                        />
-                        <Button type="submit" className="mx-4">Search</Button>
-                    </Form>
-                </Col>
-            </Row>
-            <Row>
-                {searched && articles.length === 0 ? ( 
-                    <Col>
-                        <p>No articles found. Try a different search term.</p>
-                    </Col>
-                ) : (
-                    articles.map(article => (
-                        <NewsItem key={article._id} item={article} />
-                    ))
-                )}
-            </Row>
-            {loading && (
-                <Row className="justify-content-center my-4">
-                    <Col className="text-center">
-                        <Spinner animation="border" role="status">
-                            <span className="visually-hidden">Loading...</span>
-                        </Spinner>
-                    </Col>
-                </Row>
-            )}
-        </Container>
-    );
+      {/* ✅ Smaller cards: 3 per row on md, 4 per row on lg */}
+      <Row className="g-4 px-5 py-4">
+        {articles.length === 0 && !loading ? (
+          <Col>
+            <p className="text-white">No articles found.</p>
+          </Col>
+        ) : (
+          articles.map((article, idx) => (
+            <Col key={article._id || idx} xs={12} md={4}>
+              <NewsItem item={article} />
+            </Col>
+          ))
+        )}
+      </Row>
+
+      {loading && (
+        <Row className="justify-content-center my-4">
+          <Col className="text-center">
+            <Spinner animation="border" variant="light" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </Spinner>
+          </Col>
+        </Row>
+      )}
+    </Container>
+  );
 }
 
 export default App;
